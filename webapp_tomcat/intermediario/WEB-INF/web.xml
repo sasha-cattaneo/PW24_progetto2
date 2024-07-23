@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app>
+
+    <description>
+      Servlet per la migrazione dei dati da PHPMyAdmin, su Altervista,
+      a PostgreSQL
+    </description>
+    <display-name>Servlet migrazione</display-name>
+
+    <request-character-encoding>UTF-8</request-character-encoding>
+ 
+    <servlet>
+        <servlet-name>ImportaDati</servlet-name>
+        <servlet-class>ImportaDati</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>ImportaDati</servlet-name>
+        <url-pattern>/importaDati</url-pattern>
+    </servlet-mapping>
+
+
+    <servlet>
+        <servlet-name>ImportaStruttura</servlet-name>
+        <servlet-class>ImportaStruttura</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>ImportaStruttura</servlet-name>
+        <url-pattern>/importaStruttura</url-pattern>
+    </servlet-mapping>
+
+</web-app>
