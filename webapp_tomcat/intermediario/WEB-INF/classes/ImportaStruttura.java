@@ -20,14 +20,9 @@ import com.google.gson.*;
  */
 
 /**
- * IDEA
- * 
- * Intermediario può essere chiamata dalla pagina html,
- * contenente una select per selezionare quali tabelle scaricare da altervista,
- * oppure direttamente da URI, passando come (GET o POST)? la/e tabella/e da ottenere.
- * 
- * Quindi Intermediario deve chiamare la pagina PHP su altervista, che 
- * restituirà un body JSON, e reindirizzare la risposta a chi la chiamata.
+ * ImportaStruttura chiama "export_tables-structure.php" su altervista, 
+ * inviando come parametro una lista di tabelle di cui si vuole la struttura. 
+ * Viene restituito un body JSON contenente le strutture richieste
  */
 
 public class ImportaStruttura extends HttpServlet {
@@ -44,7 +39,7 @@ public class ImportaStruttura extends HttpServlet {
         param_string = param_string.substring(0, param_string.length() -1);
 
         HttpRequest request_http = HttpRequest.newBuilder()
-			.uri(URI.create("http://cattaneo5ie.altervista.org/PW24/db_interaction/export_tables.php?"+param_string))
+			.uri(URI.create("http://cattaneo5ie.altervista.org/PW24/db_interaction/export_tables-structure.php?"+param_string))
 			.method("GET", HttpRequest.BodyPublishers.noBody())
 			.build();
 		HttpResponse<String> response_http = null;

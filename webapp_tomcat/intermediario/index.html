@@ -1,48 +1,89 @@
-<!DOCTYPE HTML><html lang="en"><head>
-<meta charset="UTF-8">
-<title>Apache Tomcat Intermediario</title>
+<!DOCTYPE HTML><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Apache Tomcat Webservice Intermediario</title>
+  <script src="js/jquery-3.7.1.min.js"></script>
+  <script src="js/scripts.js"></script>
 </head>
 <body>
   <h2>Servlet per la migrazione dei dati da PHPMyAdmin, su Altervista, a PostgreSQL</h2>
   
-  <form method="post" action="./importaDB">
+  <form method="post" action="./importaDB/">
     <h3>Importa tutto il DB</h3>
-    <input type="submit" value="Importa">    
+    <select name>
+      <option value="all">Sia struttura che dati</option>
+      <option value="struttura">Solo struttura</option>
+      <option value="dati">Solo dati</option>
+    </select>
+    <br>
+    <input type="submit" value="Importa" disabled>    
   </form>
   <br>
 
-  <form method="post" action="./importaStruttura">
+  <form id="struttura" method="post" action="./importaStruttura">
     <h3>STRUTTURA</h3>
     <label>Selezionare la tabella da importare:</label>
-    <select name="table">
-      <option value="">Tutte</option>
-      <option value="cliente">cliente</option>
-      <option value="ombrellone">ombrellone</option>
-      <option value="ombrelloneVenduto">ombrelloneVenduto</option>
-      <option value="tipologiaTariffa">tipologiaTariffa</option>
-      <option value="tipologia">tipologia</option>
-      <option value="giornoDisponibilita">giornoDisponibilita</option>
-      <option value="tariffa">tariffa</option>
-      <option value="contratto">contratto</option>
-    </select>
+    <br>
+    <input type="checkbox" value="Tutte" id="selectAll" onchange="checkAllCheckbox(this,'#struttura');return false">
+    <label>Tutte</label>
+    <br><br>
+    <input type="checkbox" name="table" value="cliente">
+    <label>cliente</label>
+    <br>
+    <input type="checkbox" name="table" value="ombrellone">
+    <label>ombrellone</label>
+    <br>
+    <input type="checkbox" name="table" value="ombrelloneVenduto">
+    <label>ombrelloneVenduto</label>
+    <br>
+    <input type="checkbox" name="table" value="tipologiaTariffa">
+    <label>tipologiaTariffa</label>
+    <br>
+    <input type="checkbox" name="table" value="tipologia">
+    <label>tipologia</label>
+    <br>
+    <input type="checkbox" name="table" value="giornoDisponibilita">
+    <label>giornoDisponibilita</label>
+    <br>
+    <input type="checkbox" name="table" value="tariffa">
+    <label>tariffa</label>
+    <br>
+    <input type="checkbox" name="table" value="contratto">
+    <label>contratto</label>
     <br>
     <input type="submit" value="Importa">
   </form>
 
-  <form method="post" action="./importaDati">
+  <form id="dati" method="post" action="./importaDati">
     <h3>DATI</h3>
     <label>Selezionare la tabella da importare:</label>
-    <select name="table">
-      <option value="">Tutte</option>
-      <option value="cliente">cliente</option>
-      <option value="ombrellone">ombrellone</option>
-      <option value="ombrelloneVenduto">ombrelloneVenduto</option>
-      <option value="tipologiaTariffa">tipologiaTariffa</option>
-      <option value="tipologia">tipologia</option>
-      <option value="giornoDisponibilita">giornoDisponibilita</option>
-      <option value="tariffa">tariffa</option>
-      <option value="contratto">contratto</option>
-    </select>
+    <br>
+    <input type="checkbox" value="Tutte" id="selectAll" onchange="checkAllCheckbox(this,'#dati');return false">
+    <label>Tutte</label>
+    <br><br>
+    <input type="checkbox" name="table" value="cliente">
+    <label>cliente</label>
+    <br>
+    <input type="checkbox" name="table" value="ombrellone">
+    <label>ombrellone</label>
+    <br>
+    <input type="checkbox" name="table" value="ombrelloneVenduto">
+    <label>ombrelloneVenduto</label>
+    <br>
+    <input type="checkbox" name="table" value="tipologiaTariffa">
+    <label>tipologiaTariffa</label>
+    <br>
+    <input type="checkbox" name="table" value="tipologia">
+    <label>tipologia</label>
+    <br>
+    <input type="checkbox" name="table" value="giornoDisponibilita">
+    <label>giornoDisponibilita</label>
+    <br>
+    <input type="checkbox" name="table" value="tariffa">
+    <label>tariffa</label>
+    <br>
+    <input type="checkbox" name="table" value="contratto">
+    <label>contratto</label>
     <br>
     <input type="submit" value="Importa">
   </form>

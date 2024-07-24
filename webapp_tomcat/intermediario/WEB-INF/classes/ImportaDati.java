@@ -20,13 +20,7 @@ import com.google.gson.*;
  */
 
 /**
- * IDEA
- * 
- * Intermediario può essere chiamata dalla pagina html,
- * contenente una select per selezionare quali tabelle scaricare da altervista,
- * oppure direttamente da URI, passando come (GET o POST)? la/e tabella/e da ottenere.
- * 
- * Quindi Intermediario deve chiamare la pagina PHP su altervista, che 
+ * Intermediario chiama la pagina PHP su altervista, che 
  * restituirà un body JSON, e reindirizzare la risposta a chi la chiamata.
  */
 
@@ -36,13 +30,19 @@ public class ImportaDati extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response)
         throws IOException, ServletException
     {
-        String param = request.getParameter("table");
+        String[] params = request.getParameterValues("table");
+        String param_string = "";
+        for (String p : params){
+            param_string += "table[]="+p+"&";
+        }
+        param_string = param_string.substring(0, param_string.length() -1);
 
         HttpRequest request_http = HttpRequest.newBuilder()
-			.uri(URI.create("http://cattaneo5ie.altervista.org/PW24/db_interaction/read_table.php?table="+param))
+			.uri(URI.create("http://cattaneo5ie.altervista.org/PW24/db_interaction/export_tables-data.php?"+param_string))
 			.method("GET", HttpRequest.BodyPublishers.noBody())
 			.build();
 		HttpResponse<String> response_http = null;
+
 		try {
 			response_http = HttpClient.newHttpClient().send(request_http, HttpResponse.BodyHandlers.ofString());
 		} catch (IOException e) {
@@ -62,10 +62,15 @@ public class ImportaDati extends HttpServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response)
         throws IOException, ServletException
     {
-        String param = request.getParameter("table");
+        String[] params = request.getParameterValues("table");
+        String param_string = "";
+        for (String p : params){
+            param_string += "table[]="+p+"&";
+        }
+        param_string = param_string.substring(0, param_string.length() -1);
 
         HttpRequest request_http = HttpRequest.newBuilder()
-			.uri(URI.create("http://cattaneo5ie.altervista.org/PW24/db_interaction/read_table.php?table="+param))
+			.uri(URI.create("http://cattaneo5ie.altervista.org/PW24/db_interaction/export_tables-data.php?"+param_string))
 			.method("GET", HttpRequest.BodyPublishers.noBody())
 			.build();
 		HttpResponse<String> response_http = null;
