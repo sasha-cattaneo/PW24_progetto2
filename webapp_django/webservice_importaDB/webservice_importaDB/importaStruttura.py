@@ -22,8 +22,9 @@ def index(request):
         param_string += "table="+p+"&"
     param_string = param_string[:-1]
     
-    tomcatAPI_request = requests.get(
+    tomcatAPI_request = requests.post(
         "http://localhost:8080/intermediario/importaStruttura",
+        headers = {"Content-Type":"application/x-www-form-urlencoded"},
         params = param_string
     )
     array_tabelle = tomcatAPI_request.json()
