@@ -1,121 +1,123 @@
 {% load static %}
-<!DOCTYPE HTML><html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <title>Django Webapp importa DB</title>
-      <script src="{% static 'scripts.js' %}"></script>
-      <script src="{% static 'jquery-3.7.1.min.js' %}"></script>
-    </head>
-    <body>
-      <h2>Webapp per la migrazione dei dati da PHPMyAdmin, su Altervista, a PostgreSQL</h2>
-      <form id="DBconnect" onsubmit="submitForm(); return false;">
-        {% csrf_token %}
-        <h3 style="color:red">IMPORTANTE</h3>
-        <b>Per poter creare un DB con PostgreSQL è necessario accedere ad un DB esistente su PostgreSQL
-          <br>
-          ed un utente, o superuser o con il permesso per creare DB
-        </b>
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Django Webapp importa DB</title>
+    <script src="{% static 'scripts.js' %}"></script>
+    <script src="{% static 'jquery-3.7.1.min.js' %}"></script>
+  </head>
+  <body>
+    <h2>Webapp per la migrazione dei dati da PHPMyAdmin, su Altervista, a PostgreSQL</h2>
+    <form id="DBconnect" onsubmit="submitForm(); return false;">
+      {% csrf_token %}
+      <h3 style="color:red">IMPORTANTE</h3>
+      <b>Per poter creare un DB con PostgreSQL è necessario accedere ad un DB esistente su PostgreSQL
         <br>
-        - Inserire il DB scelto(è temporaneo, solo per poter creare un nuovo DB con i dati da Altervista):
-        <br>
-        <input name="nome_DB" type="text" placeholder="nome_DB">
-        <br>
-        - Inserire il nome utente di un utente con accesso al DB scelto:
-        <br>
-        <input name="nome_utente" type="text" placeholder="nome_utente">
-        <br>
-        - Inserire la password dell'utente:<br>
-        <input name="password" type="text" placeholder="password">
-        <br>
-        - Se sono stati modificati, inserire host e porta:
-        <br>
-        <input name="host" type="text" value="localhost">
-        <br>
-        <input name="porta" type="text" value="5432">
-        <br>
-        <input type="submit" value="Invia">
-      </form>
-
-      <form method="post" action="./importaDB/">
-        {% csrf_token %}
-        <h3>Importa tutto il DB</h3>
-        <select name>
-          <option value="all">Sia struttura che dati</option>
-          <option value="struttura">Solo struttura</option>
-          <option value="dati">Solo dati</option>
-        </select>
-        <br>
-        <input type="submit" value="Importa" disabled>    
-      </form>
+        ed un utente, o superuser o con il permesso per creare DB
+      </b>
       <br>
-    
-      <form id="struttura" method="post" action="./importaStruttura/">
-        {% csrf_token %}
-        <h3>STRUTTURA</h3>
-        <label>Selezionare la tabella da importare:</label>
-        <!-- <select name="table">
-          <option value="all">Tutte</option>
-          <option value="cliente">cliente</option>
-          <option value="ombrellone">ombrellone</option>
-          <option value="ombrelloneVenduto">ombrelloneVenduto</option>
-          <option value="tipologiaTariffa">tipologiaTariffa</option>
-          <option value="tipologia">tipologia</option>
-          <option value="giornoDisponibilita">giornoDisponibilita</option>
-          <option value="tariffa">tariffa</option>
-          <option value="contratto">contratto</option>
-        </select> -->
-        <br>
-        <input type="checkbox" value="Tutte" id="selectAll" onchange="checkAllCheckbox(this,'#struttura');return false">
-        <label>Tutte</label>
-        <br><br>
-        <input type="checkbox" name="table[]" value="cliente">
-        <label>cliente</label>
-        <br>
-        <input type="checkbox" name="table[]" value="ombrellone">
-        <label>ombrellone</label>
-        <br>
-        <input type="checkbox" name="table[]" value="ombrelloneVenduto">
-        <label>ombrelloneVenduto</label>
-        <br>
-        <input type="checkbox" name="table[]" value="tipologiaTariffa">
-        <label>tipologiaTariffa</label>
-        <br>
-        <input type="checkbox" name="table[]" value="tipologia">
-        <label>tipologia</label>
-        <br>
-        <input type="checkbox" name="table[]" value="giornoDisponibilita">
-        <label>giornoDisponibilita</label>
-        <br>
-        <input type="checkbox" name="table[]" value="tariffa">
-        <label>tariffa</label>
-        <br>
-        <input type="checkbox" name="table[]" value="contratto">
-        <label>contratto</label>
-        <br>
-        <input type="submit" value="Importa" disabled>
-      </form>
-    
-      <form method="post" action="./importaDati/">
-        {% csrf_token %}
-        <h3>DATI</h3>
-        <label>Selezionare la tabella da importare:</label>
-        <select name="table">
-          <option value="all">Tutte</option>
-          <option value="cliente">cliente</option>
-          <option value="ombrellone">ombrellone</option>
-          <option value="ombrelloneVenduto">ombrelloneVenduto</option>
-          <option value="tipologiaTariffa">tipologiaTariffa</option>
-          <option value="tipologia">tipologia</option>
-          <option value="giornoDisponibilita">giornoDisponibilita</option>
-          <option value="tariffa">tariffa</option>
-          <option value="contratto">contratto</option>
-        </select>
-        <br>
-        <input type="submit" value="Importa" disabled>
-      </form>
-    
-    
-    
-    </body>
-    </html>
-    
+      - Inserire il DB scelto(è temporaneo, solo per poter creare un nuovo DB con i dati da Altervista):
+      <br>
+      <input name="nome_DB" type="text" placeholder="nome_DB">
+      <br>
+      - Inserire il nome utente di un utente con accesso al DB scelto:
+      <br>
+      <input name="nome_utente" type="text" placeholder="nome_utente">
+      <br>
+      - Inserire la password dell'utente:<br>
+      <input name="password" type="text" placeholder="password">
+      <br>
+      - Se sono stati modificati, inserire host e porta:
+      <br>
+      <input name="host" type="text" value="localhost">
+      <br>
+      <input name="porta" type="text" value="5432">
+      <br>
+      <input type="submit" value="Invia">
+    </form>
+
+    <form method="post" action="./importaDB/">
+      {% csrf_token %}
+      <h3>Importa tutto il DB</h3>
+      <select name>
+        <option value="all">Sia struttura che dati</option>
+        <option value="struttura">Solo struttura</option>
+        <option value="dati">Solo dati</option>
+      </select>
+      <br>
+      <input type="submit" value="Importa" disabled>    
+    </form>
+    <br>
+  
+    <form id="struttura" method="post" action="./importaStruttura/">
+      {% csrf_token %}
+      <h3>STRUTTURA</h3>
+      <label>Selezionare la tabella da importare:</label>
+      <br>
+      <input type="checkbox" value="Tutte" id="selectAll" onchange="checkAllCheckbox(this,'#struttura');return false">
+      <label>Tutte</label>
+      <br><br>
+      <input type="checkbox" name="table[]" value="cliente">
+      <label>cliente</label>
+      <br>
+      <input type="checkbox" name="table[]" value="ombrellone">
+      <label>ombrellone</label>
+      <br>
+      <input type="checkbox" name="table[]" value="ombrelloneVenduto">
+      <label>ombrelloneVenduto</label>
+      <br>
+      <input type="checkbox" name="table[]" value="tipologiaTariffa">
+      <label>tipologiaTariffa</label>
+      <br>
+      <input type="checkbox" name="table[]" value="tipologia">
+      <label>tipologia</label>
+      <br>
+      <input type="checkbox" name="table[]" value="giornoDisponibilita">
+      <label>giornoDisponibilita</label>
+      <br>
+      <input type="checkbox" name="table[]" value="tariffa">
+      <label>tariffa</label>
+      <br>
+      <input type="checkbox" name="table[]" value="contratto">
+      <label>contratto</label>
+      <br>
+      <input type="submit" value="Importa" disabled>
+    </form>
+  
+    <form method="post" action="./importaDati/">
+      {% csrf_token %}
+      <h3>DATI</h3>
+      <label>Selezionare la tabella da importare:</label>
+      <br>
+      <input type="checkbox" value="Tutte" id="selectAll" onchange="checkAllCheckbox(this,'#struttura');return false">
+      <label>Tutte</label>
+      <br><br>
+      <input type="checkbox" name="table[]" value="cliente">
+      <label>cliente</label>
+      <br>
+      <input type="checkbox" name="table[]" value="ombrellone">
+      <label>ombrellone</label>
+      <br>
+      <input type="checkbox" name="table[]" value="ombrelloneVenduto">
+      <label>ombrelloneVenduto</label>
+      <br>
+      <input type="checkbox" name="table[]" value="tipologiaTariffa">
+      <label>tipologiaTariffa</label>
+      <br>
+      <input type="checkbox" name="table[]" value="tipologia">
+      <label>tipologia</label>
+      <br>
+      <input type="checkbox" name="table[]" value="giornoDisponibilita">
+      <label>giornoDisponibilita</label>
+      <br>
+      <input type="checkbox" name="table[]" value="tariffa">
+      <label>tariffa</label>
+      <br>
+      <input type="checkbox" name="table[]" value="contratto">
+      <label>contratto</label>
+      <br>
+      <input type="submit" value="Importa" disabled>
+    </form>
+  </body>
+</html>
