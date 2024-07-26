@@ -12,12 +12,11 @@ from . import importaStruttura
 # Funzione per l'importo dei dati delle tabelle richieste da altervista a postgreSQL
 # Parametri necessari:
 # lista di tabelle, chiave: 'table[]'
+# 
+# Parametri opzionali:
+# nomeDB_importo (String): nome DB in cui importare le tabelle
 #
 # Return: Pagina html con il risultato dell operazione di importo
-
-# Nome DB in cui importare le tabelle
-nomeDB_importo = "PW24_headers"
-
 def index(request):
     # Salvo la lista di tabelle da importare e il nome del DB in cui importarle
     if request.method == "GET":
@@ -28,15 +27,15 @@ def index(request):
         nomeDB_importo = request.POST.get("nomeDB")
 
     # Nome DB in cui importare le tabelle se non scelto dall'utente
-    if nomeDB_importo is None or nomeDB_importo is "":
+    if nomeDB_importo is None or nomeDB_importo == "":
         nomeDB_importo = "PW24_headers"
 
     # Se nessuna tabella da importare è stata trovata restituisco errore
-    if param is None:
-        return HttpResponse("ERROR: parametro ['table'] non settato")
+    if param is None or len(param) == 0:
+        return HttpResponse("ERROR: parametro ['table[]'] non settato")
 
     context = importaDati(param, nomeDB_importo)
-
+    
     return render(request,"resultDati.html", context)
 
 # Importa dati delle tabelle da altervista a postgreSQL
@@ -107,7 +106,7 @@ def chiamaIntermediario(lista_tabelle):
     for p in lista_tabelle:
         param_string += "table="+p+"&"
     param_string = param_string[:-1]
-
+    
     # Chiamata HTTP POST al webservice di Apache Tomcat
     tomcatAPI_request = requests.post(
         "http://localhost:8080/intermediario/importaDati",

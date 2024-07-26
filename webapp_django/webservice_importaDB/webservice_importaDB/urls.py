@@ -7,8 +7,7 @@ from . import importaStruttura
 from . import importaDati
 from . import checkConnessioneDB
 
-# Solo per debugging
-from . import myController
+
 
 # Creo i pattern per collegare URL a funzione python
 urlpatterns = [
@@ -17,5 +16,5 @@ urlpatterns = [
     path("importaStruttura/", importaStruttura.index, name="importaStruttura"),
     path("importaDati/", importaDati.index, name="importaDtai"),
     path("checkConnessioneDB/", checkConnessioneDB.index, name="checkConnessioneDB"),
-    path("test/", myController.index)
+    
 ]

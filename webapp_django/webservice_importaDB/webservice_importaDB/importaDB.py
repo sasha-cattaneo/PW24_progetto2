@@ -4,51 +4,40 @@ import psycopg2
 from psycopg2 import sql
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
+from . import importaStruttura
+from . import importaDati
+
+
+# Funzione per l'importo di tutte le tabelle, con o senza dati, da altervista a postgreSQL
+# Parametri opzionali:
+# operazione (String): withData o noData per indicare se scaricare i dati o no
+# nomeDB_importo (String): nome DB in cui importare le tabelle
+#
+# Return: Pagina html con il risultato dell operazione di importo
 def index(request):
+    # Lista delle tabelle
+    param_list = ['cliente', 'ombrellone', 'ombrelloneVenduto', 'tipologiaTariffa', 'tipologia', 'giornoDisponibilita', 'tariffa', 'contratto']
 
-    conn = psycopg2.connect(database="postgres",
-        user='postgres',
-        password='admin',
-        host='localhost', port='5432')
-    
-    conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+    # Salvo l'operazione da svolgere e il nome del DB in cui importare le tabelle
+    if request.method == "GET":
+        operation = request.GET.get("operazione")
+        nomeDB_importo = request.GET.get("nomeDB")
+    if request.method == "POST":
+        operation = request.POST.get("operazione")
+        nomeDB_importo = request.POST.get("nomeDB")
 
-    cursor = conn.cursor()
+     # Nome DB in cui importare le tabelle se non scelto dall'utente
+    if nomeDB_importo is None or nomeDB_importo == "":
+        nomeDB_importo = "PW24_headers"
 
-    query = sql.SQL("SELECT 'CREATE DATABASE {}' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '{}')").format(
-        sql.Identifier("PW24_headers-DB"),
-        sql.Identifier("PW24_headers-DB")
-    )
-    # query = sql.SQL("CREATE DATABASE {}").format(sql.Identifier("PW24_headers-DB"))
+    # Se nessuna operazione è specificata restituisco errore
+    if operation is None:
+        return HttpResponse("ERROR: parametro ['operazione'] non settato")
 
-
-    cursor.execute(query)
-
-    o1 = "<html> <body>"
-    o2 = "<p>DB creato</p>"
-    o2 += str(request.GET.get("table"))
-
-    conn = psycopg2.connect(database="PW24_headers-DB",
-        user='postgres',
-        password='admin',
-        host='localhost', port='5432')
-    
-    cursor = conn.cursor()
-
-
-    query = sql.SQL("SELECT count(*) FROM pg_database WHERE datname = '{}'").format(
-        sql.Identifier("PW24_headers-DB")
-    )
-
-    cursor.execute(query)
-
-    results = cursor.fetchall()
-
-    for r in results:
-        o2 += "<p>"+str(r)+"</p>"
-
-    o3 = "<p>tabella creata</p>"
-    o4 = "</body> </html>"
-    return HttpResponse(o1 + o2 + o3 + o4)
-
-# def importa
+    # Altrimenti importo solo le strutture o tutto in base alla scelta
+    if operation == "noData":
+        context = importaStruttura.importaTabelle(param_list, nomeDB_importo)
+        return render(request,"resultStruttura.html", context) 
+    else:
+        context = importaDati.importaDati(param_list,nomeDB_importo)
+        return render(request,"resultDati.html", context)
