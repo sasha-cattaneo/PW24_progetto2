@@ -90,7 +90,7 @@
       <input type="submit" value="Importa" disabled>
     </form>
   
-    <form method="post" action="./importaDati/">
+    <form id="dati" method="post" action="./importaDati/">
       {% csrf_token %}
       <h3>DATI</h3>
       <p>NB L'importo dei dati implica anche l'importo delle strutture delle tabelle</p>
@@ -100,7 +100,7 @@
       <br>
       <label>Selezionare la tabella da importare:</label>
       <br>
-      <input type="checkbox" value="Tutte" id="selectAll" onchange="checkAllCheckbox(this,'#struttura');return false">
+      <input type="checkbox" value="Tutte" id="selectAll" onchange="checkAllCheckbox(this,'#dati');return false">
       <label>Tutte</label>
       <br><br>
       <input type="checkbox" name="table[]" value="cliente">

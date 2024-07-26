@@ -39,9 +39,11 @@
                 {% for table, value in tables.items %}
                 <li>[{{ table }}]
                 {% if value == 1 %}
-                dati aggiungi
+                dati importati
+                {% elif value == 0 %}
+                nessun dato da importare
                 {% else %}
-                dati non aggiunti (ERRORE)
+                dati non importati (ERRORE)
                 {% endif %}
                 </li>
                 {% endfor %}

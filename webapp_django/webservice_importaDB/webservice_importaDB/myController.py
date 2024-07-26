@@ -11,7 +11,7 @@ from . import importaStruttura
 from . import importaDati
 
 # File utilizzato per il debugging di piccole aggiunte o modifiche ai webservice di importo (importaData, importaStruttura, importaDB)
-# prima di implementarle nei webservice
+# prima di implementarle nei webservice 
 
 def index(request):
     if request.method == "GET":
@@ -189,31 +189,50 @@ def index(request):
 
 #         # rows_list = list(rows_tabella.items())
 #         # Costruzione query per la creazione della tabella
-#         num_campi = len(struttura[0].keys())
-#         filler_args = f"({','.join(["'%s'"]*num_campi)})"
+#         # num_campi = len(struttura[0].keys())
+#         # filler_args_str = f"({','.join(["'%s'"]*num_campi)})"
 #         # args_str = ",".join(str(cursor.mogrify(f"({','.join(['%s']*len(x.keys()))})", [x[campo] for campo in x.keys()])) for x in rows_tabella)
-#         # args_str = ",".join((filler_args % [row[campo] for campo in row.keys()]) for row in rows_tabella)
+#         # args_str = ",".join((filler_args_str % [row[campo] for campo in row.keys()]) for row in rows_tabella)
 
-#         args_str = ""
+#         filler_args_str = "("
+#         # for campo in struttura[0]:
+#         #     if isinstance(struttura[0][campo], str):
+#         #         filler_args_str += "'%s',"
+#         #     else:
+#         #         filler_args_str += "%s,"
+#         # filler_args_str = filler_args_str[:-1]
+#         # filler_args_str += ")"
 
+#         args = []
 #         for row in struttura:
-#             row_args = []
 #             for campo in row.keys():
-#                 row_args.append(row[campo])
+#                 filler_args_str += "%s,"
+                
+#                 args.append(row[campo])
 
-#             args_str += filler_args % tuple(row_args)
-#             args_str += ","
-        
-#         args_str = args_str[:-1]
+#             filler_args_str = filler_args_str[:-1]
+#             filler_args_str += "),("
+
+
+#         filler_args_str = filler_args_str[:-2]
+
+#             # args_str += filler_args_str % tuple(row_args)
+#             # args_str += ","
+#                 # t += str(row[campo]) + " : "
+#                 # t += type(row[campo]).__name__
+#                 # t += "<br>"
+#         # args_str = args_str[:-1]
             
 #         # args_str = ",".join("(%s,%s,%s,%s,%s)" % ([row[campo] for campo in row.keys()]) for row in rows_tabella)
 #         query_string = "INSERT INTO %s VALUES " % (nome_tabella.lower(),)
-#         query_string += args_str
+#         query_string += filler_args_str
         
 #         # Eseguo la query
-#         cursor.execute(sql.SQL(query_string))
+#         cursor.execute(sql.SQL(query_string), args)
 
+#         # t = cursor.mogrify(sql.SQL(query_string), args)
 #         t += "aggiunti dati<br>"
+
     
 #     conn.close()
 #     cursor.close()

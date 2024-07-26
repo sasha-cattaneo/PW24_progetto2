@@ -50,6 +50,7 @@ def index(request):
 # Return: dizionario (struttura: {'table1': x, 'table2': x, ...})
 # x ha avere valori:
 # 1, se i dati sono stati importati con successo
+# 0, se non ci sono dati da importare
 # -1, se i dati non sono stati importati 
 def importaDati(lista_tabelle, nomeDB_importo="PW24_headers"):
 
@@ -76,18 +77,21 @@ def importaDati(lista_tabelle, nomeDB_importo="PW24_headers"):
         rows_tabella = tabella[nome_tabella]
 
         # Se la tabella non è stata creata con successo non posso inserire i suoi dati
-        if(result_importo_tabelle['tables'][nome_tabella] == -1):
+        if result_importo_tabelle['tables'][nome_tabella] == -1:
             result_table_list[nome_tabella] = -1
             break
-        
+        # Se non ci sono dati da importare
+        if len(rows_tabella) == 0:
+            result_table_list[nome_tabella] = 0
         # Altrimenti inserisco i dati
-        try:
-            success = aggiungiDati(nome_tabella, rows_tabella, nomeDB_importo)
+        else:
+            try:
+                success = aggiungiDati(nome_tabella, rows_tabella, nomeDB_importo)
 
-            if success:
-                result_table_list[nome_tabella] = 1
-        except:
-            result_table_list[nome_tabella] = -1
+                if success:
+                    result_table_list[nome_tabella] = 1
+            except:
+                result_table_list[nome_tabella] = -1
 
     return result
 
@@ -126,35 +130,30 @@ def aggiungiDati(tabella, dati, nomeDB):
 
     cursor = conn.cursor()
 
-    # Costruzione stringa dei dati da inserire nella tabella
-    args_str = ""
-    # Numero di colonne
-    num_campi = len(dati[0].keys())
     # Stringa temporanea con %s al posto dei parametri
-    filler_args = f"({','.join(["'%s'"]*num_campi)})"
+    filler_args_str = "("
     
     # Per ogni riga da aggiungere alla tabella
-    # sostituisco i dati a %s della stringa temporanea
-    # e la aggiungo alla stringa finale args_str
+    # aggiungo un %s alla stringa filler_args_str
+    # e aggiungo il dato a una lista, che alla fine avrà tutti i dati
+    args = []
     for row in dati:
-        # Creo una lista dei parametri da inserire
-        row_args = []
         for campo in row.keys():
-            row_args.append(row[campo])
-        # String formatting con la lista dei parametri
-        args_str += filler_args % tuple(row_args)
-        args_str += ","
-    
-    # Rimuovo l'ultima virgola
-    args_str = args_str[:-1]
+            filler_args_str += "%s,"
+
+            args.append(row[campo])
+
+        filler_args_str = filler_args_str[:-1]
+        filler_args_str += "),("
+    filler_args_str = filler_args_str[:-2]
 
     # Costruisco la query
     query_string = "INSERT INTO %s VALUES " % (tabella.lower(),)
-    query_string += args_str
+    query_string += filler_args_str
     # query_string += " ON CONFLICT DO NOTHING"
 
     # Eseguo la query
-    cursor.execute(query_string)
+    cursor.execute(sql.SQL(query_string), args)
 
     conn.close()
     cursor.close()
