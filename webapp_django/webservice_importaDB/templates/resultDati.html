@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Risultato importo</title>
+    </head>
+    <body>
+        <div id="creazione">
+            <h2>Creazione</h2>
+            <h3>Database</h3>
+            <ul>
+                {% if create.DB == 0 %}
+                <li>DB esiste</li>
+                {% elif create.DB == 1 %}
+                <li>DB creato</li>
+                {% else %}
+                <li>DB non creato (ERRORE)</li>
+                {% endif %}
+            </ul>
+
+            <h3>Tabelle</h3>
+            <ul>
+                {% for table, value in create.tables.items %}
+                <li>[{{ table }}]
+                {% if value == 0 %}
+                esiste
+                {% elif value == 1 %}
+                creata
+                {% else %}
+                non creata (ERRORE)
+                {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div id="inserimento">
+            <h2>Inserimento</h2>
+            <h3>Tabelle</h3>
+            <ul>
+                {% for table, value in tables.items %}
+                <li>[{{ table }}]
+                {% if value == 1 %}
+                dati aggiungi
+                {% else %}
+                dati non aggiunti (ERRORE)
+                {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Risultato importo</title>
+    </head>
+    <body>
+        <h3>Database</h3>
+        <ul>
+            {% if DB == 0 %}
+            <li>DB esiste</li>
+            {% elif DB == 1 %}
+            <li>DB creato</li>
+            {% else %}
+            <li>DB non creato (ERRORE)</li>
+            {% endif %}
+        </ul>
+
+        <h3>Tabelle</h3>
+        <ul>
+            {% for table, value in tables.items %}
+            <li>{{ table }}
+            {% if value == 0 %}
+            esiste
+            {% elif value == 1 %}
+            creata
+            {% else %}
+            non creata (ERRORE)
+            {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+    </body>
+</html>

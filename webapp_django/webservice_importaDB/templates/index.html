@@ -16,8 +16,8 @@
         <br>
         ed un utente, o superuser o con il permesso per creare DB
       </b>
-      <br>
-      - Inserire il DB scelto(è temporaneo, solo per poter creare un nuovo DB con i dati da Altervista):
+      <br><br>
+      - Inserire il DB scelto (è temporaneo, solo per poter creare un nuovo DB con i dati da Altervista):
       <br>
       <input name="nome_DB" type="text" placeholder="nome_DB">
       <br>
@@ -40,10 +40,12 @@
     <form method="post" action="./importaDB/">
       {% csrf_token %}
       <h3>Importa tutto il DB</h3>
+      <label>Nome DB locale in cui importare il DB: </label>
+      <input type="text" name="nomeDB" placeholder="PW24_headers">
+      <br>
       <select name>
         <option value="all">Sia struttura che dati</option>
         <option value="struttura">Solo struttura</option>
-        <option value="dati">Solo dati</option>
       </select>
       <br>
       <input type="submit" value="Importa" disabled>    
@@ -53,6 +55,9 @@
     <form id="struttura" method="post" action="./importaStruttura/">
       {% csrf_token %}
       <h3>STRUTTURA</h3>
+      <label>Nome DB locale in cui importare il DB: </label>
+      <input type="text" name="nomeDB" placeholder="PW24_headers">
+      <br>
       <label>Selezionare la tabella da importare:</label>
       <br>
       <input type="checkbox" value="Tutte" id="selectAll" onchange="checkAllCheckbox(this,'#struttura');return false">
@@ -88,6 +93,11 @@
     <form method="post" action="./importaDati/">
       {% csrf_token %}
       <h3>DATI</h3>
+      <p>NB L'importo dei dati implica anche l'importo delle strutture delle tabelle</p>
+      <br>
+      <label>Nome DB locale in cui importare il DB: </label>
+      <input type="text" name="nomeDB" placeholder="PW24_headers">
+      <br>
       <label>Selezionare la tabella da importare:</label>
       <br>
       <input type="checkbox" value="Tutte" id="selectAll" onchange="checkAllCheckbox(this,'#struttura');return false">

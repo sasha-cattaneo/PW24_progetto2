@@ -1,4 +1,5 @@
 from django.http import HttpResponse
+from django.shortcuts import render
 import requests
 import json
 
@@ -11,25 +12,101 @@ from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 # lista di tabelle, chiave: 'table[]'
 #
 # Return: Pagina html con il risultato dell operazione di importo
-
-# Nome DB in cui importare le tabelle
-nomeDB_importo = "PW24_headers"
-
-
 def index(request):
-    # Salvo la lista di tabelle da importare
+    # Salvo la lista di tabelle da importare e il nome del DB in cui importarle
     if request.method == "GET":
         param = request.GET.getlist("table[]")
+        nomeDB_importo = request.GET.get("nomeDB")
     if request.method == "POST":
         param = request.POST.getlist("table[]")
+        nomeDB_importo = request.POST.get("nomeDB")
+    
+    # Nome DB in cui importare le tabelle se non scelto dall'utente
+    if nomeDB_importo is None or nomeDB_importo is "":
+        nomeDB_importo = "PW24_headers"
 
     # Se nessuna tabella da importare è stata trovata restituisco errore
     if param is None:
         return HttpResponse("ERROR: parametro ['table'] non settato")
+
+    context = importaTabelle(param, nomeDB_importo)
     
+    return render(request,"resultStruttura.html", context)
+
+# Importa tabelle da altervista a postgreSQL
+# 
+# Parametri necessari:
+# lista_tabelle (List): lista di tabelle da importare
+# 
+# Parametri opzionali:
+# nomeDB_importo (String): nome DB in cui importare le tabelle
+# 
+# Return: dizionario (struttura: {'DB': x, 'tables': {'table1': x, 'table2': x, ...}})
+# x ha avere valori:
+# 0, se la tabella/DB esiste già
+# 1, se la tabella/DB è stata/o creata/o con successo
+# -1, se la tabella/DB non è stata/o creata/o per un errore
+def importaTabelle(lista_tabelle, nomeDB_importo="PW24_headers"):
+    
+    # Salvo la risposta alla chiamata alla servlet Tomcat
+    array_tabelle = chiamaIntermediario(lista_tabelle)
+
+    # Dizionario da restituire
+    result_table_list = {}
+    result = {"DB":0,"tables":result_table_list}
+
+    # Controllo se il DB in cui importare le tabelle esiste
+    DBesiste = checkEsistenzaDB(nomeDB_importo)
+
+    # Se il DB non esiste lo creo
+    if not DBesiste:
+        try:
+            # Creo il DB
+            success = creaDB(nomeDB_importo)
+            if success:
+                result["DB"] = 1
+        # Se il DB non è stato creato termino l'esecuzione restituendo l'errore
+        except:
+            result["DB"] = -1
+            return result
+
+    # Per ogni tabella controllo se esiste e se non esiste la creo
+    for tabella in array_tabelle:
+
+        # Salvo il nome della tabella
+        nome_tabella = list(tabella.keys())[0]
+        # Salvo la struttura della tabella
+        campi_tabella = tabella[nome_tabella]
+        
+        # Controllo se la tabella esiste
+        tabellaEsiste = checkEsistenzaTabella(nome_tabella, nomeDB_importo)
+        
+        # Se la tabella non esiste la creo
+        if not tabellaEsiste:
+            try:
+                # Creo la tabella
+                success = creaTabella(nome_tabella, campi_tabella, nomeDB_importo)
+                if success:
+                    result_table_list[nome_tabella] = 1
+            # Se la creazione è fallita invio salvo l'errore 
+            except:
+                result_table_list[nome_tabella] = -1
+        else:
+            # Aggiungo al result che la tabella "nome_tabella" esiste
+            result_table_list[nome_tabella] = 0
+        
+    return result
+
+# Chiamata servelet Apache Tomcat per ottenere la struttura delle tabelle da altervista
+# 
+# Parametri necessari:
+# param (List): lista di tabelle da importare
+# 
+# Return: risultato chiamata
+def chiamaIntermediario(lista_tabelle):
     # Con la lista di tabelle creo una stringa formattata come query string (key=value) 
     param_string = ""
-    for p in param:
+    for p in lista_tabelle:
         param_string += "table="+p+"&"
     param_string = param_string[:-1]
 
@@ -41,52 +118,7 @@ def index(request):
         # Imposto come parametro la lista delle tabelle formattata
         params = param_string
     )
-    # Salvo la risposta alla chiamata
-    array_tabelle = tomcatAPI_request.json()
-
-    # Messaggio di default
-    msg = "DB esiste<br>"
-
-    # Controllo se il DB in cui importare le tabelle esiste
-    DBesiste = checkEsistenzaDB(nomeDB_importo)
-
-    # Se il DB non esiste lo creo
-    if not DBesiste:
-        try:
-            # Creo il DB
-            success = creaDB(nomeDB_importo)
-            if success:
-               msg = "DB creato<br>"
-        # Se il DB non è stato creato termino l'esecuzione inviando l'errore all'utente
-        except:
-            msg = "Errore nella creazione del DB"
-            return HttpResponse(msg)
-
-    # Per ogni tabella controllo se esiste e se non esiste la creo
-    for tabella in array_tabelle:
-
-        # Salvo il nome della tabella
-        nome_tabella = list(tabella.keys())[0]
-        # Salvo la struttura della tabella
-        campi_tabella = tabella[nome_tabella]
-        
-        # Controllo se la tabella esiste
-        tabellaEsiste = checkEsistenzaTabella(nome_tabella)
-        
-        # Se la tabella non esiste la creo
-        if not tabellaEsiste:
-            try:
-                # Creo la tabella
-                success = creaTabella(nome_tabella, campi_tabella)
-                if success:
-                    msg += "Tabella ["+tabella+"] importata<br>"
-            # Se la creazione è fallita invio l'errore all'utente
-            except:
-                msg += "Tabella ["+nome_tabella+"] non è stata importata<br>"
-        else:
-            # Aggiungo al messaggio che la tabella "nome_tabella" esiste
-            msg += "Tabella ["+nome_tabella+"] esiste<br>"
-    return HttpResponse(msg)
+    return tomcatAPI_request.json()
 
 # Controllo esistenza DB "nomeDB" su postgreSQL
 # 
@@ -159,9 +191,9 @@ def creaDB(nomeDB):
 # tabella (String): nome DB da cercare
 # 
 # Return: boolean risultato controllo sull'esistenza della tabella
-def checkEsistenzaTabella(tabella):
+def checkEsistenzaTabella(tabella, nomeDB):
     # Connessione al DB
-    conn = psycopg2.connect(database=nomeDB_importo,
+    conn = psycopg2.connect(database=nomeDB,
         user='postgres',
         password='admin',
         host='localhost', port='5432')
@@ -189,11 +221,11 @@ def checkEsistenzaTabella(tabella):
 # struttura (Dictionary): campi della tabella da creare
 # 
 # Return: boolean risultato creazione
-def creaTabella(tabella, struttura):
+def creaTabella(tabella, struttura, nomeDB):
     # Connessione al DB
     # DAFARE
     # DA AGGIUNGERE VARIABILI DI SESSIONE PER LA CONNESSIONE
-    conn = psycopg2.connect(database=nomeDB_importo,
+    conn = psycopg2.connect(database=nomeDB,
         user='postgres',
         password='admin',
         host='localhost', port='5432')
@@ -244,4 +276,5 @@ def creaTabella(tabella, struttura):
     conn.close()
     cursor.close()
 
+    # Se la creazione ha avuto successo restituisce 1
     return 1
