@@ -82,7 +82,7 @@ public class ImportaStruttura extends HttpServlet {
 
         //Chiamo lo script PHP, passando la stringa dei parametri
         HttpRequest request_http = HttpRequest.newBuilder()
-			.uri(URI.create("http://cattaneo5ie.altervista.org/PW24/db_interaction/export_tables.php?"+param_string))
+			.uri(URI.create("http://cattaneo5ie.altervista.org/PW24/db_interaction/export_tables-structure.php?"+param_string))
 			.method("GET", HttpRequest.BodyPublishers.noBody())
 			.build();
 		HttpResponse<String> response_http = null;
