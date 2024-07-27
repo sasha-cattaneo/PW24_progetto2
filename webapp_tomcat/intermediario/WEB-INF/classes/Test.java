@@ -12,23 +12,7 @@ import java.net.URI;
 
 import com.google.gson.*;
 
-/**
- * Servlet per la importare DB da PHPmyAdmin.
- *
- * @author Sasha Cattaneo
- * @author Ilaria Roma
- */
-
-/**
- * IDEA
- * 
- * Intermediario può essere chiamata dalla pagina html,
- * contenente una select per selezionare quali tabelle scaricare da altervista,
- * oppure direttamente da URI, passando come (GET o POST)? la/e tabella/e da ottenere.
- * 
- * Quindi Intermediario deve chiamare la pagina PHP su altervista, che 
- * restituirà un body JSON, e reindirizzare la risposta a chi la chiamata.
- */
+//Classse per eseguire test
 
 public class Test extends HttpServlet {
 

@@ -23,6 +23,10 @@ import com.google.gson.*;
  * ImportaStruttura chiama "export_tables-structure.php" su altervista, 
  * inviando come parametro una lista di tabelle di cui si vuole la struttura. 
  * Viene restituito un body JSON contenente le strutture richieste
+ * 
+ * @param lista di tabelle da importare usando metodo GET o POST, chiave 'table'
+ * 
+ * @return json con le strutture delle tabelle richieste
  */
 
 public class ImportaStruttura extends HttpServlet {
@@ -31,13 +35,16 @@ public class ImportaStruttura extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response)
         throws IOException, ServletException
     {
+        // Estraggo la lista di tabelle dai parametri 'table'
         String[] params = request.getParameterValues("table");
+        // Con la lista di tabelle creo una stringa formattata come query string (key=value)
         String param_string = "";
         for (String p : params){
             param_string += "table[]="+p+"&";
         }
         param_string = param_string.substring(0, param_string.length() -1);
 
+        //Chiamo lo script PHP, passando la stringa dei parametri
         HttpRequest request_http = HttpRequest.newBuilder()
 			.uri(URI.create("http://cattaneo5ie.altervista.org/PW24/db_interaction/export_tables-structure.php?"+param_string))
 			.method("GET", HttpRequest.BodyPublishers.noBody())
@@ -55,6 +62,7 @@ public class ImportaStruttura extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         
+        //Restituisco il json ottenuto dallo script PHP
         PrintWriter out = response.getWriter();
         out.println(response_http.body());
     }
@@ -63,13 +71,16 @@ public class ImportaStruttura extends HttpServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response)
         throws IOException, ServletException
     {
+        // Estraggo la lista di tabelle dai parametri 'table'
         String[] params = request.getParameterValues("table");
+        // Con la lista di tabelle creo una stringa formattata come query string (key=value)
         String param_string = "";
         for (String p : params){
             param_string += "table[]="+p+"&";
         }
         param_string = param_string.substring(0, param_string.length() -1);
 
+        //Chiamo lo script PHP, passando la stringa dei parametri
         HttpRequest request_http = HttpRequest.newBuilder()
 			.uri(URI.create("http://cattaneo5ie.altervista.org/PW24/db_interaction/export_tables.php?"+param_string))
 			.method("GET", HttpRequest.BodyPublishers.noBody())
@@ -87,6 +98,7 @@ public class ImportaStruttura extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         
+        //Restituisco il json ottenuto dallo script PHP
         PrintWriter out = response.getWriter();
         out.println(response_http.body());
     }
