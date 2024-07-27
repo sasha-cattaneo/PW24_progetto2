@@ -34,8 +34,13 @@ foreach($table_list as $i => $value){
     //$result = mysqli_query($connessione, $query);
     $result = $query->get_result();
 
-    // Creo un array chiave:valore dal nome della tabella e il risultato della query 
-    $tables[] = tableToArray($value, $result);
+    // Se la tabella non è stata trovata
+    if ($result == null){
+        $tables[] = array($value => []);
+    }else{
+        // Creo un array chiave:valore dal nome della tabella e il risultato della query 
+        $tables[] = tableToArray($value, $result);
+    }
 }
 mysqli_close($connessione);
 
