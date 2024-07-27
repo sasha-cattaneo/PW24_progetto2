@@ -47,18 +47,15 @@ def index(request):
 
         # Se l'utente ha il permesso imposto result e status 200 in response
         if (cursor.fetchone()[0] == True):
-            result = "Accesso al DB eseguito e utente può creare DB"
-            response = HttpResponse(result, status=200)
             request.session['database'] = nome_DB
             request.session['user'] = nome_utente
             request.session['password'] = password
             request.session['host'] = host
             request.session['port'] = porta
-            # connectionParameters.database = nome_DB
-            # connectionParameters.user = nome_utente
-            # connectionParameters.password = password
-            # connectionParameters.host = host
-            # connectionParameters.port = porta
+
+            result = "Accesso al DB eseguito e utente può creare DB<br>"
+            result += "Sessione iniziata e variabili di sessione impostare"
+            response = HttpResponse(result, status=200)
 
         # Se l'utente ha il permesso imposto result e status 500 in response
         else:
