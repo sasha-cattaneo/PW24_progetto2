@@ -24,17 +24,35 @@ def index(request):
     
     param_string = ""
 
-    for p in params:
-        param_string += "table="+p+"&"
-    param_string = param_string[:-1]
-    
-    tomcatAPI_request = requests.get(
-        "http://localhost:8080/intermediario/importaStruttura",
-        params = param_string
-    )
-    struttura = tomcatAPI_request.json()
+    database = 'postgres'
+    user = 'PW24_headers_user'
+    password = 'PW24_headers_user'
+    host = 'localhost'
+    port = '5432'
+    if 'database' in request.session:
+        database = request.session['database']
+    if 'user' in request.session:
+        user = request.session['user']
+    if 'password' in request.session:
+        password = request.session['password']
+    if 'host' in request.session:
+        host = request.session['host']
+    if 'port' in request.session:
+        port = request.session['port']
 
-    return HttpResponse(json.dumps(struttura), content_type="application/json")
+    return HttpResponse(database+"|"+user+"|"+password+"|"+host+"|"+port)
+
+#     for p in params:
+#         param_string += "table="+p+"&"
+#     param_string = param_string[:-1]
+    
+#     tomcatAPI_request = requests.get(
+#         "http://localhost:8080/intermediario/importaStruttura",
+#         params = param_string
+#     )
+#     struttura = tomcatAPI_request.json()
+
+#     return HttpResponse(json.dumps(struttura), content_type="application/json")
 
 # def index(request):
 #     o = "esiste"

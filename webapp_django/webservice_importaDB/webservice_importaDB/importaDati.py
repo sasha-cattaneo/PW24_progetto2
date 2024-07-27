@@ -34,13 +34,14 @@ def index(request):
     if param is None or len(param) == 0:
         return HttpResponse("ERROR: parametro ['table[]'] non settato")
 
-    context = importaDati(param, nomeDB_importo)
+    context = importaDati(request, param, nomeDB_importo)
     
     return render(request,"resultDati.html", context)
 
 # Importa dati delle tabelle da altervista a postgreSQL
 # 
 # Parametri necessari:
+# request (HttpRequest): HttpRequest utilizzata per accedere alla sessione
 # lista_tabelle (List): lista di tabelle da importare
 # 
 # Parametri opzionali:
@@ -51,14 +52,14 @@ def index(request):
 # 1, se i dati sono stati importati con successo
 # 0, se non ci sono dati da importare
 # -1, se i dati non sono stati importati 
-def importaDati(lista_tabelle, nomeDB_importo="PW24_headers"):
+def importaDati(request, lista_tabelle, nomeDB_importo="PW24_headers"):
 
     # Salvo la risposta alla chiamata alla servlet Tomcat
     array_tabelle = chiamaIntermediario(lista_tabelle)
 
     # Per poter aggiungere i dati a delle tabelle devo avere le tabelle, quindi confermo che ci siamo o le creo
     # Chiamo la funzione importaTabelle passando tutti i parametri
-    result_importo_tabelle = importaStruttura.importaTabelle(lista_tabelle, nomeDB_importo)
+    result_importo_tabelle = importaStruttura.importaTabelle(request, lista_tabelle, nomeDB_importo)
     
 
     # Dizionario da restituire
@@ -85,7 +86,7 @@ def importaDati(lista_tabelle, nomeDB_importo="PW24_headers"):
         # Altrimenti inserisco i dati
         else:
             try:
-                success = aggiungiDati(nome_tabella, rows_tabella, nomeDB_importo)
+                success = aggiungiDati(request, nome_tabella, rows_tabella, nomeDB_importo)
 
                 if success:
                     result_table_list[nome_tabella] = 1
@@ -117,7 +118,29 @@ def chiamaIntermediario(lista_tabelle):
     )
     return tomcatAPI_request.json()
 
-def aggiungiDati(tabella, dati, nomeDB):
+
+# Aggiunge dati alla tabella "tabella"
+# 
+# Parametri necessari:
+# request (HttpRequest): HttpRequest utilizzata per accedere alla sessione
+# tabella (String): nome tabella da creare
+# dati (Dictionary): dati da importare
+# nomeDB (String): nome DB in cui importare i dati
+# 
+# Return: boolean risultato creazione
+def aggiungiDati(request, tabella, dati, nomeDB):
+    user = 'PW24_headers_user'
+    password = 'PW24_headers_user'
+    host = 'localhost'
+    port = '5432'
+    if 'user' in request.session:
+        user = request.session['user']
+    if 'password' in request.session:
+        password = request.session['password']
+    if 'host' in request.session:
+        host = request.session['host']
+    if 'port' in request.session:
+        port = request.session['port']
     # Connessione al DB
     # DAFARE
     # DA AGGIUNGERE VARIABILI DI SESSIONE PER LA CONNESSIONE

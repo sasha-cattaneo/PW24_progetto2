@@ -32,13 +32,14 @@ def index(request):
     if param is None or len(param) == 0:
         return HttpResponse("ERROR: parametro ['table[]'] non settato")
     
-    context = importaTabelle(param, nomeDB_importo)
+    context = importaTabelle(request, param, nomeDB_importo)
     
     return render(request,"resultStruttura.html", context)
 
 # Importa tabelle da altervista a postgreSQL
 # 
 # Parametri necessari:
+# request (HttpRequest): HttpRequest utilizzata per accedere alla sessione
 # lista_tabelle (List): lista di tabelle da importare
 # 
 # Parametri opzionali:
@@ -49,7 +50,7 @@ def index(request):
 # 0, se la tabella/DB esiste già
 # 1, se la tabella/DB è stata/o creata/o con successo
 # -1, se la tabella/DB non è stata/o creata/o per un errore
-def importaTabelle(lista_tabelle, nomeDB_importo="PW24_headers"):
+def importaTabelle(request, lista_tabelle, nomeDB_importo="PW24_headers"):
     
     # Salvo la risposta alla chiamata alla servlet Tomcat
     array_tabelle = chiamaIntermediario(lista_tabelle)
@@ -59,13 +60,13 @@ def importaTabelle(lista_tabelle, nomeDB_importo="PW24_headers"):
     result = {"DB":0,"tables":result_table_list}
 
     # Controllo se il DB in cui importare le tabelle esiste
-    DBesiste = checkEsistenzaDB(nomeDB_importo)
+    DBesiste = checkEsistenzaDB(request, nomeDB_importo)
 
     # Se il DB non esiste lo creo
     if not DBesiste:
         try:
             # Creo il DB
-            success = creaDB(nomeDB_importo)
+            success = creaDB(request, nomeDB_importo)
             if success:
                 result["DB"] = 1
         # Se il DB non è stato creato termino l'esecuzione restituendo l'errore
@@ -82,13 +83,13 @@ def importaTabelle(lista_tabelle, nomeDB_importo="PW24_headers"):
         campi_tabella = tabella[nome_tabella]
         
         # Controllo se la tabella esiste
-        tabellaEsiste = checkEsistenzaTabella(nome_tabella, nomeDB_importo)
+        tabellaEsiste = checkEsistenzaTabella(request, nome_tabella, nomeDB_importo)
         
         # Se la tabella non esiste la creo
         if not tabellaEsiste:
             try:
                 # Creo la tabella
-                success = creaTabella(nome_tabella, campi_tabella, nomeDB_importo)
+                success = creaTabella(request, nome_tabella, campi_tabella, nomeDB_importo)
                 if success:
                     result_table_list[nome_tabella] = 1
             # Se la creazione è fallita invio salvo l'errore 
@@ -126,18 +127,34 @@ def chiamaIntermediario(lista_tabelle):
 # Controllo esistenza DB "nomeDB" su postgreSQL
 # 
 # Parametri necessari:
+# request (HttpRequest): HttpRequest utilizzata per accedere alla sessione
 # nomeDB (String): nome DB da cercare
 # 
 # Return: boolean risultato controllo sull'esistenza del DB
-def checkEsistenzaDB(nomeDB):
+def checkEsistenzaDB(request, nomeDB):
+    database = 'postgres'
+    user = 'PW24_headers_user'
+    password = 'PW24_headers_user'
+    host = 'localhost'
+    port = '5432'
+    if 'database' in request.session:
+        database = request.session['database']
+    if 'user' in request.session:
+        user = request.session['user']
+    if 'password' in request.session:
+        password = request.session['password']
+    if 'host' in request.session:
+        host = request.session['host']
+    if 'port' in request.session:
+        port = request.session['port']
     # Connessione al DB
     # DAFARE
-    # DA AGGIUNGERE VARIABILI DI SESSIONE PER LA CONNESSIONE
     # USARE UNA VARIABILE DI SESSIONE PER VERIFICARE SE IL CONTROLLO CONNESSIONE E' STATO FATTO
-    conn = psycopg2.connect(database="postgres",
-        user='postgres',
-        password='admin',
-        host='localhost', port='5432')
+    conn = psycopg2.connect(database = database,
+        user = user,
+        password = password,
+        host = host,
+        port = port)
     conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     conn.autocommit = True
 
@@ -160,18 +177,35 @@ def checkEsistenzaDB(nomeDB):
 # Crea il DB "nomeDB" in postgreSQL
 # 
 # Parametri necessari:
+# request (HttpRequest): HttpRequest utilizzata per accedere alla sessione
 # nomeDB (String): nome DB da creare
 # 
 # Return: boolean risultato creazione
-def creaDB(nomeDB):
+def creaDB(request, nomeDB):
+    database = 'postgres'
+    user = 'PW24_headers_user'
+    password = 'PW24_headers_user'
+    host = 'localhost'
+    port = '5432'
+    if 'database' in request.session:
+        database = request.session['database']
+    if 'user' in request.session:
+        user = request.session['user']
+    if 'password' in request.session:
+        password = request.session['password']
+    if 'host' in request.session:
+        host = request.session['host']
+    if 'port' in request.session:
+        port = request.session['port']
     # Connessione al DB postgreSQL
     # DAFARE
     # DA AGGIUNGERE VARIABILI DI SESSIONE PER LA CONNESSIONE
     # USARE UNA VARIABILE DI SESSIONE PER VERIFICARE SE IL CONTROLLO CONNESSIONE E' STATO FATTO
-    conn = psycopg2.connect(database="postgres",
-        user='postgres',
-        password='admin',
-        host='localhost', port='5432')
+    conn = psycopg2.connect(database = database,
+        user = user,
+        password = password,
+        host = host,
+        port = port)
     conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     conn.autocommit = True
 
@@ -191,15 +225,30 @@ def creaDB(nomeDB):
 # Controllo l'esistenza della tabella "tabella" nel DB
 # 
 # Parametri necessari:
-# tabella (String): nome DB da cercare
+# request (HttpRequest): HttpRequest utilizzata per accedere alla sessione
+# tabella (String): nome tabella da cercare
+# nomeDB (String): nome DB in cui cercare la tabella
 # 
 # Return: boolean risultato controllo sull'esistenza della tabella
-def checkEsistenzaTabella(tabella, nomeDB):
+def checkEsistenzaTabella(request, tabella, nomeDB):
+    user = 'PW24_headers_user'
+    password = 'PW24_headers_user'
+    host = 'localhost'
+    port = '5432'
+    if 'user' in request.session:
+        user = request.session['user']
+    if 'password' in request.session:
+        password = request.session['password']
+    if 'host' in request.session:
+        host = request.session['host']
+    if 'port' in request.session:
+        port = request.session['port']
     # Connessione al DB
-    conn = psycopg2.connect(database=nomeDB,
-        user='postgres',
-        password='admin',
-        host='localhost', port='5432')
+    conn = psycopg2.connect(database = nomeDB,
+        user=user,
+        password=password,
+        host=host,
+        port=port)
     conn.autocommit = True
 
     cursor = conn.cursor()
@@ -220,18 +269,33 @@ def checkEsistenzaTabella(tabella, nomeDB):
 # Crea la tabella "tabella" con struttura "struttura"
 # 
 # Parametri necessari:
+# request (HttpRequest): HttpRequest utilizzata per accedere alla sessione
 # tabella (String): nome tabella da creare
 # struttura (Dictionary): campi della tabella da creare
+# nomeDB (String): nome DB in cui creare la tabella
 # 
 # Return: boolean risultato creazione
-def creaTabella(tabella, struttura, nomeDB):
+def creaTabella(request, tabella, struttura, nomeDB):
+    user = 'PW24_headers_user'
+    password = 'PW24_headers_user'
+    host = 'localhost'
+    port = '5432'
+    if 'user' in request.session:
+        user = request.session['user']
+    if 'password' in request.session:
+        password = request.session['password']
+    if 'host' in request.session:
+        host = request.session['host']
+    if 'port' in request.session:
+        port = request.session['port']
     # Connessione al DB
     # DAFARE
     # DA AGGIUNGERE VARIABILI DI SESSIONE PER LA CONNESSIONE
-    conn = psycopg2.connect(database=nomeDB,
-        user='postgres',
-        password='admin',
-        host='localhost', port='5432')
+    conn = psycopg2.connect(database = nomeDB,
+        user = user,
+        password = password,
+        host = host,
+        port = port)
     conn.autocommit = True
 
     cursor = conn.cursor()

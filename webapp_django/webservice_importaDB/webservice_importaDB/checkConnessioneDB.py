@@ -28,8 +28,8 @@ def index(request):
         nome_DB = request.POST.get("nome_DB")
         nome_utente = request.POST.get("nome_utente")
         password = request.POST.get("password")
-        host = request.GET.get("host")
-        porta = request.GET.get("porta")
+        host = request.POST.get("host")
+        porta = request.POST.get("porta")
 
     # Provo a connettermi
     try:
@@ -49,6 +49,17 @@ def index(request):
         if (cursor.fetchone()[0] == True):
             result = "Accesso al DB eseguito e utente può creare DB"
             response = HttpResponse(result, status=200)
+            request.session['database'] = nome_DB
+            request.session['user'] = nome_utente
+            request.session['password'] = password
+            request.session['host'] = host
+            request.session['port'] = porta
+            # connectionParameters.database = nome_DB
+            # connectionParameters.user = nome_utente
+            # connectionParameters.password = password
+            # connectionParameters.host = host
+            # connectionParameters.port = porta
+
         # Se l'utente ha il permesso imposto result e status 500 in response
         else:
             result = "Utente non può creare DB"

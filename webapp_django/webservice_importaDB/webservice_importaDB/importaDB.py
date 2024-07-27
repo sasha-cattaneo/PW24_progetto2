@@ -36,8 +36,8 @@ def index(request):
 
     # Altrimenti importo solo le strutture o tutto in base alla scelta
     if operation == "noData":
-        context = importaStruttura.importaTabelle(param_list, nomeDB_importo)
+        context = importaStruttura.importaTabelle(request, param_list, nomeDB_importo)
         return render(request,"resultStruttura.html", context) 
     else:
-        context = importaDati.importaDati(param_list,nomeDB_importo)
+        context = importaDati.importaDati(request, param_list, nomeDB_importo)
         return render(request,"resultDati.html", context)
