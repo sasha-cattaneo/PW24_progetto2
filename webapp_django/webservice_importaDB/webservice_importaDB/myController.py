@@ -12,6 +12,16 @@ from . import importaDati
 
 # File utilizzato per il debugging di piccole aggiunte o modifiche ai webservice di importo (importaData, importaStruttura, importaDB)
 # prima di implementarle nei webservice 
+# def index(request):
+#     if request.method == "GET":
+#         params = request.GET.getlist("table[]")
+#     if request.method == "POST":
+#         params = request.POST.getlist("table[]")
+#     result_importo_tabelle = importaStruttura.importaTabelle(request, params, "test")
+#     r = ""
+#     for tabella in result_importo_tabelle["tables"]:
+#         r += str(result_importo_tabelle["tables"][tabella]) 
+#     return HttpResponse(r)
 
 def index(request):
     if request.method == "GET":

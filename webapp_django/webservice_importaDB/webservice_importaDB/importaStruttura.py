@@ -33,7 +33,7 @@ def index(request):
         return HttpResponse("ERROR: parametro ['table[]'] non settato")
     
     context = importaTabelle(request, param, nomeDB_importo)
-    
+
     return render(request,"resultStruttura.html", context)
 
 # Importa tabelle da altervista a postgreSQL
@@ -50,6 +50,7 @@ def index(request):
 # 0, se la tabella/DB esiste già
 # 1, se la tabella/DB è stata/o creata/o con successo
 # -1, se la tabella/DB non è stata/o creata/o per un errore
+# -2, se c'è stato un errore lato altervista
 def importaTabelle(request, lista_tabelle, nomeDB_importo="PW24_headers"):
     
     # Salvo la risposta alla chiamata alla servlet Tomcat
@@ -57,7 +58,8 @@ def importaTabelle(request, lista_tabelle, nomeDB_importo="PW24_headers"):
 
     # Dizionario da restituire
     result_table_list = {}
-    result = {"DB":0,"tables":result_table_list}
+    result_DB = {'result':0, 'name': nomeDB_importo}
+    result = {"DB":result_DB,"tables":result_table_list}
 
     # Controllo se il DB in cui importare le tabelle esiste
     DBesiste = checkEsistenzaDB(request, nomeDB_importo)
@@ -68,10 +70,10 @@ def importaTabelle(request, lista_tabelle, nomeDB_importo="PW24_headers"):
             # Creo il DB
             success = creaDB(request, nomeDB_importo)
             if success:
-                result["DB"] = 1
+                result["DB"]['result'] = 1
         # Se il DB non è stato creato termino l'esecuzione restituendo l'errore
         except:
-            result["DB"] = -1
+            result["DB"]['result'] = -1
             return result
 
     # Per ogni tabella controllo se esiste e se non esiste la creo
@@ -81,23 +83,28 @@ def importaTabelle(request, lista_tabelle, nomeDB_importo="PW24_headers"):
         nome_tabella = list(tabella.keys())[0]
         # Salvo la struttura della tabella
         campi_tabella = tabella[nome_tabella]
-        
-        # Controllo se la tabella esiste
-        tabellaEsiste = checkEsistenzaTabella(request, nome_tabella, nomeDB_importo)
-        
-        # Se la tabella non esiste la creo
-        if not tabellaEsiste:
-            try:
-                # Creo la tabella
-                success = creaTabella(request, nome_tabella, campi_tabella, nomeDB_importo)
-                if success:
-                    result_table_list[nome_tabella] = 1
-            # Se la creazione è fallita invio salvo l'errore 
-            except:
-                result_table_list[nome_tabella] = -1
+
+        # Se la tabella non è stata trovata su altervista
+        if len(campi_tabella) == 0:
+            result_table_list[nome_tabella] = -2
+            
         else:
-            # Aggiungo al result che la tabella "nome_tabella" esiste
-            result_table_list[nome_tabella] = 0
+            # Controllo se la tabella esiste
+            tabellaEsiste = checkEsistenzaTabella(request, nome_tabella, nomeDB_importo)
+            
+            # Se la tabella non esiste la creo
+            if not tabellaEsiste:
+                try:
+                    # Creo la tabella
+                    success = creaTabella(request, nome_tabella, campi_tabella, nomeDB_importo)
+                    if success:
+                        result_table_list[nome_tabella] = 1
+                # Se la creazione è fallita invio salvo l'errore 
+                except:
+                    result_table_list[nome_tabella] = -1
+            else:
+                # Aggiungo al result che la tabella "nome_tabella" esiste
+                result_table_list[nome_tabella] = 0
         
     return result
 
@@ -122,6 +129,7 @@ def chiamaIntermediario(lista_tabelle):
         # Imposto come parametro la lista delle tabelle formattata
         params = param_string
     )
+    
     return tomcatAPI_request.json()
 
 # Controllo esistenza DB "nomeDB" su postgreSQL

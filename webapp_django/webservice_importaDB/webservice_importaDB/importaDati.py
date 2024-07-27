@@ -54,13 +54,18 @@ def index(request):
 # -1, se i dati non sono stati importati 
 def importaDati(request, lista_tabelle, nomeDB_importo="PW24_headers"):
 
-    # Salvo la risposta alla chiamata alla servlet Tomcat
-    array_tabelle = chiamaIntermediario(lista_tabelle)
-
     # Per poter aggiungere i dati a delle tabelle devo avere le tabelle, quindi confermo che ci siamo o le creo
     # Chiamo la funzione importaTabelle passando tutti i parametri
     result_importo_tabelle = importaStruttura.importaTabelle(request, lista_tabelle, nomeDB_importo)
     
+    # Per ogni tabella controllo se è stata creata con successo
+    # Se non è stata creata la rimuovo dalla lista
+    for tabella in result_importo_tabelle["tables"]:
+        if result_importo_tabelle["tables"][tabella] == -1 or result_importo_tabelle["tables"][tabella] == -2:
+            lista_tabelle.remove(tabella)
+
+    # Salvo la risposta alla chiamata alla servlet Tomcat
+    array_tabelle = chiamaIntermediario(lista_tabelle)
 
     # Dizionario da restituire
     result_table_list = {}
@@ -77,8 +82,8 @@ def importaDati(request, lista_tabelle, nomeDB_importo="PW24_headers"):
         rows_tabella = tabella[nome_tabella]
 
         # Se la tabella non è stata creata con successo non posso inserire i suoi dati
-        if result_importo_tabelle['tables'][nome_tabella] == -1:
-            result_table_list[nome_tabella] = -1
+        if result_importo_tabelle['tables'][nome_tabella] == -1 or result_importo_tabelle['tables'][nome_tabella] == -2:
+            result_table_list[nome_tabella] = result_importo_tabelle['tables'][nome_tabella]
             break
         # Se non ci sono dati da importare
         if len(rows_tabella) == 0:

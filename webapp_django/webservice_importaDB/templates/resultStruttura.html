@@ -6,13 +6,16 @@
     <body>
         <h3>Database</h3>
         <ul>
-            {% if DB == 0 %}
-            <li>DB esiste</li>
-            {% elif DB == 1 %}
-            <li>DB creato</li>
+            <li>[{{ DB.name }}]
+            {% if DB.result == 0 %}
+            esiste
+            {% elif DB.result == 1 %}
+            creato
             {% else %}
-            <li>DB non creato (ERRORE)</li>
+            non creato (ERRORE)
             {% endif %}
+
+            </li>
         </ul>
 
         <h3>Tabelle</h3>
@@ -23,8 +26,10 @@
             esiste
             {% elif value == 1 %}
             creata
-            {% else %}
-            non creata (ERRORE)
+            {% elif value == -1 %}
+            non creata (ERRORE LOCALE)
+            {% elif value == -2 %}
+            non creata (ERRORE ALTERVISTA: Tabella non trovata)            
             {% endif %}
             </li>
             {% endfor %}
